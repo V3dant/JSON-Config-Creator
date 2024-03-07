@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Config Builder</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/theme/dracula.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.63.1/mode/javascript/javascript.min.js"></script>
+    <style>
+        /* Style for the container holding the code editor */
+        .code-editor-container {
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 40%;
+            background-color: #282a36;
+            color: #f8f8f2;
+            z-index: 999;
+        }
+
+        /* Style for the CodeMirror editor */
+        .CodeMirror {
+            height: calc(100% - 30px); /* Adjusted height to accommodate the format button */
+        }
+
+        /* Style for the button inside the editor */
+        .code-editor-button {
+            position: absolute;
+            top: 0;
+            right: 0;
+            margin: 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 1001; /* Ensure the button is on top of the editor */
+        }
+        .input-field {
+            display: block;
+            width: 200px; /* Adjusted width to accommodate button padding */
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .dropdown {
+            display: block;
+            width: 200px;            
+            margin-bottom: 15px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .checkbox {
+            margin-bottom: 20px;
+        }
+
+        #addFieldButton {
+            display: block;
+            width: 200px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #addFieldButton:hover {
+            background-color: #0056b3;
+        }
+        .input-box {
+        background-color: #f0f0f0;
+        border: 1px solid #ccc;
+        width: 40%;
+        border-radius: 5px;
+        padding: 20px;
+        margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="input-box">
+        <!-- Display Name input field -->
+        <label for="displayName">Display name:</label>
+        <input type="text" id="displayName" class="input-field">
+    
+        <!-- Progress Bar dropdown -->
+        <label for="progressBar">Size:</label>
+        <select id="progressBar" class="input-field">
+            <option class="dropdown-option" value="1">1</option>
+            <option class="dropdown-option" value="2">2</option>
+            <option class="dropdown-option" value="3">3</option>
+        </select>
+
+        <label for="fieldType">Field Type:</label>
+        <select id="fieldType" class="input-field">
+            <option disabled selected value> Select field type </option>
+            <option class="dropdown-option" value="text">text</option>
+            <option class="dropdown-option" value="char_field">char_field</option>
+            <option class="dropdown-option" value="single_select">single_select</option>
+            <option class="dropdown-option" value="multi_select">multi_select</option>
+            <option class="dropdown-option" value="url">url</option>
+            <option class="dropdown-option" value="email">email</option>
+            <option class="dropdown-option" value="integer">integer</option>
+            <option class="dropdown-option" value="checkbox">checkbox</option>
+            <option class="dropdown-option" value="bool">bool</option>
+            <option class="dropdown-option" value="date">date</option>
+            <option class="dropdown-option" value="phone">phone</option>
+            <option class="dropdown-option" value="file">file</option>
+            <option class="dropdown-option" value="radio">radio</option>
+        </select>
+    
+        <!-- Separate input fields for labels and values -->
+        <div id="optionsFields" style="display: none;">
+            <label for="labelsInput">Labels (comma-separated):</label>
+            <input type="text" id="labelsInput" class="input-field">
+
+            <label for="valuesInput">Values (comma-separated):</label>
+            <input type="text" id="valuesInput" class="input-field">
+        </div>
+
+
+        <!-- Is Required checkbox -->
+        <label for="isRequired">Is Required:</label>
+        <input type="checkbox" id="isRequired" class="input-field">
+
+         <!-- Constraint checkbox -->
+        <label for="hasConstraint">Constraint:</label>
+        <input type="checkbox" id="hasConstraint" class="input-field">
+
+        <div id="constraintFields" style="display: none;">
+            <label for="targetField">Target Field:</label>
+            <input type="text" id="targetField" class="input-field">
+
+            <label for="firstCompareField">First Compare Field:</label>
+            <input type="text" id="firstCompareField" class="input-field">
+
+            <label for="operator">Operator:</label>
+            <input type="text" id="operator" class="input-field">
+
+            <label for="compareValue">Compare Value:</label>
+            <input type="text" id="compareValue" class="input-field">
+
+            <label for="compareGroup">Compare Group:</label>
+            <input type="number" id="compareGroup" class="input-field">
+        </div>
+
+        
+        <!-- Button to add a new field -->
+        <button id="addFieldButton">Add Field to JSON</button>
+    </div>
+
+    <!-- Format button -->
+    <button id="formatJsonButton" class="code-editor-button">Format JSON</button>
+
+    <div class="code-editor-container">
+        <textarea id="code-editor"></textarea>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
+                lineNumbers: true,
+                theme: "dracula",
+                readOnly: false
+            });
+            
+            var fieldCounter = 0; // Initialize the field counter
+
+            // Function to add field
+            document.getElementById("addFieldButton").addEventListener("click", function() {
+                var displayName = document.getElementById("displayName").value;
+                var progressBar = document.getElementById("progressBar").value;
+                var isRequired = document.getElementById("isRequired").checked;
+                var labelsInput = document.getElementById("labelsInput").value; // Get the labels input value
+                var valuesInput = document.getElementById("valuesInput").value; // Get the values input value
+                var fieldType = document.getElementById("fieldType").value;
+                var hasConstraint = document.getElementById("hasConstraint").checked;
+
+                var field = {
+                    "tag": "field_" + fieldCounter, // Set the tag with a unique value
+                    "body": displayName,
+                    "size": progressBar,
+                    "field_type": fieldType,
+                    "is_required": isRequired
+                };
+
+                // Check if field type requires options
+                if (["multi_select", "single_select", "radio", "checkbox"].includes(fieldType)) {
+                    var labels = labelsInput.split(",").map(function(label) {
+                        return label.trim(); // Trim whitespace
+                    });
+
+                    var values = valuesInput.split(",").map(function(value) {
+                        return value.trim(); // Trim whitespace
+                    });
+
+                    var options = labels.map(function(label, index) {
+                        return {
+                            "label": label,
+                            "value": values[index] // Use corresponding value
+                        };
+                    });
+
+                    field['options'] = options;
+                }
+
+                if (hasConstraint) {
+                    var constraint = {
+                        "0": {
+                            "target_field": document.getElementById("targetField").value,
+                            "first_compare_field": document.getElementById("firstCompareField").value,
+                            "operator": document.getElementById("operator").value,
+                            "compare_value": document.getElementById("compareValue").value,
+                            "compare_group": parseInt(document.getElementById("compareGroup").value)
+                        }
+                    };
+
+                    field['constraints'] = constraint;
+                }
+
+                
+
+                var currentJsonText = editor.getValue();
+                var newJsonText = JSON.stringify({ [fieldCounter * 10]: field }, null, 4); // Wrap the field in an object with key incremented by 10
+
+                if (currentJsonText !== "") {
+                    currentJsonText += ",\n" + newJsonText;
+                } else {
+                    currentJsonText = newJsonText;
+                }
+
+                editor.setValue(currentJsonText);
+
+                // Clear input fields after adding a new field
+                document.getElementById("displayName").value = "";
+                document.getElementById("progressBar").value = "1";
+                document.getElementById("isRequired").checked = false;
+                document.getElementById("labelsInput").value = "";
+                document.getElementById("valuesInput").value = "";
+
+                fieldCounter++; // Increment the field counter for the next field
+            });
+
+            // Format JSON button functionality
+            document.getElementById("formatJsonButton").addEventListener("click", function() {
+                var code = editor.getValue();
+                var formattedCode = formatJSON(code);
+                editor.setValue(formattedCode);
+            });
+
+            function formatJSON(jsonString) {
+                // Parse the JSON string into an object
+                var jsonObject;
+                try {
+                    jsonObject = JSON.parse(jsonString);
+                } catch (error) {
+                    console.error("Invalid JSON:", error);
+                    return jsonString; // Return original string if JSON parsing fails
+                }
+
+                // Convert the object back to a formatted JSON string
+                var formattedCode = JSON.stringify(jsonObject, null, 2);
+
+                return formattedCode;
+            }
+
+            // Show/hide constraint fields based on checkbox state
+            document.getElementById("hasConstraint").addEventListener("change", function() {
+                var constraintFields = document.getElementById("constraintFields");
+                constraintFields.style.display = this.checked ? "block" : "none";
+            });
+
+            // Show/hide options input field based on selected field type
+            document.getElementById("fieldType").addEventListener("change", function() {
+                var optionsFields = document.getElementById("optionsFields");
+                optionsFields.style.display = ["multi_select", "single_select", "radio", "checkbox"].includes(this.value) ? "block" : "none";
+            });
+        });
+    </script>
+    
+</body>
+</html>
