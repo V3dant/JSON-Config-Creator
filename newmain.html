@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -23,7 +24,8 @@
 
         /* Style for the CodeMirror editor */
         .CodeMirror {
-            height: calc(100% - 30px); /* Adjusted height to accommodate the format button */
+            height: calc(100% - 30px);
+            /* Adjusted height to accommodate the format button */
         }
 
         /* Style for the button inside the editor */
@@ -38,11 +40,14 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            z-index: 1001; /* Ensure the button is on top of the editor */
+            z-index: 1001;
+            /* Ensure the button is on top of the editor */
         }
+
         .input-field {
             display: block;
-            width: 200px; /* Adjusted width to accommodate button padding */
+            width: 200px;
+            /* Adjusted width to accommodate button padding */
             margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #ccc;
@@ -51,7 +56,7 @@
 
         .dropdown {
             display: block;
-            width: 200px;            
+            width: 200px;
             margin-bottom: 15px;
             padding: 10px;
             border: 1px solid #ccc;
@@ -76,23 +81,75 @@
         #addFieldButton:hover {
             background-color: #0056b3;
         }
+
         .input-box {
-        background-color: #f0f0f0;
-        border: 1px solid #ccc;
-        width: 40%;
-        border-radius: 5px;
-        padding: 20px;
-        margin-bottom: 20px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            width: 40%;
+            border-radius: 5px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .input-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .input-container label {
+            margin-right: 10px;
+            font-weight: bold;
+        }
+
+        .input-field {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .save-button {
+            margin-left: 10px;
+            margin-bottom: 15px;
+            padding: 8px 16px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .save-button:hover {
+            background-color: #0056b3;
         }
     </style>
 </head>
-<body>
 
+<body>
+    <h2>Please enter the properties of your JSON config and click on Add field to JSON.</h2>
     <div class="input-box">
+        <!-- Display Stepgroup name input field -->
+        <div class="input-container">
+            <label for="StepGroupName">Stepgroup name:</label>
+            <input type="text" id="StepGroupName" class="input-field">
+            <button id="saveStepGroupName" class="save-button">Save</button>
+        </div>
+
+        <!-- Display Stepgroup name input field -->
+        <div class="input-container">
+            <label for="StepName">Step name:</label>
+            <input type="text" id="StepName" class="input-field">
+            <button id="saveStepName" class="save-button">Save</button>
+        </div>
+
+
         <!-- Display Name input field -->
-        <label for="displayName">Display name:</label>
-        <input type="text" id="displayName" class="input-field">
-    
+        <div class="input-container">
+            <label for="displayName">Display name:</label>
+            <input type="text" id="displayName" class="input-field">
+        </div>
+
         <!-- Progress Bar dropdown -->
         <label for="progressBar">Size:</label>
         <select id="progressBar" class="input-field">
@@ -104,26 +161,34 @@
         <label for="fieldType">Field Type:</label>
         <select id="fieldType" class="input-field">
             <option disabled selected value> Select field type </option>
-            <option class="dropdown-option" value="text">text</option>
-            <option class="dropdown-option" value="char_field">char_field</option>
-            <option class="dropdown-option" value="single_select">single_select</option>
-            <option class="dropdown-option" value="multi_select">multi_select</option>
-            <option class="dropdown-option" value="url">url</option>
-            <option class="dropdown-option" value="email">email</option>
-            <option class="dropdown-option" value="integer">integer</option>
-            <option class="dropdown-option" value="checkbox">checkbox</option>
             <option class="dropdown-option" value="bool">bool</option>
+            <option class="dropdown-option" value="char_field">char_field</option>
+            <option class="dropdown-option" value="checkbox">checkbox</option>
             <option class="dropdown-option" value="date">date</option>
-            <option class="dropdown-option" value="phone">phone</option>
+            <option class="dropdown-option" value="email">email</option>
             <option class="dropdown-option" value="file">file</option>
+            <option class="dropdown-option" value="integer">integer</option>
+            <option class="dropdown-option" value="multi_select">multi_select</option>
+            <option class="dropdown-option" value="phone">phone</option>
             <option class="dropdown-option" value="radio">radio</option>
+            <option class="dropdown-option" value="single_select">single_select</option>
+            <option class="dropdown-option" value="text">text</option>
+            <option class="dropdown-option" value="url">url</option>
         </select>
-    
+
+        <div id="optionsFields" style="display: none;">
+            <label for="labelsInput">Labels (Comma-separated):</label>
+            <input type="text" id="labelsInput" class="input-field">
+
+            <label for="valuesInput">Values (Comma-separated):</label>
+            <input type="text" id="valuesInput" class="input-field">
+        </div>
+
         <!-- Is Required checkbox -->
         <label for="isRequired">Is Required:</label>
         <input type="checkbox" id="isRequired" class="input-field">
 
-         <!-- Constraint checkbox -->
+        <!-- Constraint checkbox -->
         <label for="hasConstraint">Constraint:</label>
         <input type="checkbox" id="hasConstraint" class="input-field">
 
@@ -135,7 +200,11 @@
             <input type="text" id="firstCompareField" class="input-field">
 
             <label for="operator">Operator:</label>
-            <input type="text" id="operator" class="input-field">
+            <select id="operator" class="input-field">
+                <option disabled selected value> Select operator</option>
+                <option class="dropdown-option" value="eq">eq</option>
+                <option class="dropdown-option" value="nt">nt</option>
+            </select>
 
             <label for="compareValue">Compare Value:</label>
             <input type="text" id="compareValue" class="input-field">
@@ -144,25 +213,26 @@
             <input type="number" id="compareGroup" class="input-field">
         </div>
 
+
         <!-- Button to add a new field -->
         <button id="addFieldButton">Add Field to JSON</button>
     </div>
 
-    <!-- Format button -->
-    <button id="formatJsonButton" class="code-editor-button">Format JSON</button>
+    <!-- Copy button -->
+    <button id="copyJsonButton" class="code-editor-button">Copy formatted JSON</button>
 
     <div class="code-editor-container">
         <textarea id="code-editor"></textarea>
     </div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             var editor = CodeMirror.fromTextArea(document.getElementById("code-editor"), {
                 lineNumbers: true,
                 theme: "dracula",
                 readOnly: false
             });
-            
+
             var fieldCounter = 0;
 
             // Load provided JSON into the editor
@@ -173,6 +243,8 @@
                         "name": "Student Details",
                         "steps": {
                             "0": {
+                                "tag": "personal_info",
+                                "name": "Personal Info",
                                 "fields": {}
                             }
                         }
@@ -182,12 +254,15 @@
             editor.setValue(JSON.stringify(initialJson, null, 4));
 
             // Function to add field
-            document.getElementById("addFieldButton").addEventListener("click", function() {
+            document.getElementById("addFieldButton").addEventListener("click", function () {
                 var displayName = document.getElementById("displayName").value;
                 var progressBar = document.getElementById("progressBar").value;
                 var isRequired = document.getElementById("isRequired").checked;
+                var labelsInput = document.getElementById("labelsInput").value;
+                var valuesInput = document.getElementById("valuesInput").value;
                 var fieldType = document.getElementById("fieldType").value;
                 var hasConstraint = document.getElementById("hasConstraint").checked;
+
 
                 var field = {
                     "tag": "field_" + fieldCounter,
@@ -196,6 +271,25 @@
                     "field_type": fieldType,
                     "is_required": isRequired
                 };
+
+                if (["multi_select", "single_select", "radio", "checkbox"].includes(fieldType)) {
+                    var labels = labelsInput.split(",").map(function (label) {
+                        return label.trim(); // Trim whitespace
+                    });
+
+                    var values = valuesInput.split(",").map(function (value) {
+                        return value.trim(); // Trim whitespace
+                    });
+
+                    var options = labels.map(function (label, index) {
+                        return {
+                            "label": label,
+                            "value": values[index] // Use corresponding value
+                        };
+                    });
+
+                    field['options'] = options;
+                }
 
                 if (hasConstraint) {
                     var constraint = {
@@ -211,6 +305,9 @@
                     field['constraints'] = constraint;
                 }
 
+                // Check if field type requires options
+
+
                 var currentJsonText = editor.getValue();
                 var currentJson = JSON.parse(currentJsonText);
                 var newJson = Object.assign({}, currentJson);
@@ -219,7 +316,7 @@
                 fieldCounter++;
 
                 // Add new field to the 'fields' object of the existing structure
-                newJson.stepgroups[0].steps[0].fields[fieldCounter*10] = field;
+                newJson.stepgroups[0].steps[0].fields[fieldCounter * 10] = field;
 
                 // Set updated JSON back to editor
                 editor.setValue(JSON.stringify(newJson, null, 4));
@@ -228,39 +325,119 @@
                 document.getElementById("displayName").value = "";
                 document.getElementById("progressBar").value = "1";
                 document.getElementById("isRequired").checked = false;
+                document.getElementById("labelsInput").value = "";
+                document.getElementById("valuesInput").value = "";
 
-            });
-
-            // Format JSON button functionality
-            document.getElementById("formatJsonButton").addEventListener("click", function() {
-                var code = editor.getValue();
-                var formattedCode = formatJSON(code);
-                editor.setValue(formattedCode);
             });
 
             function formatJSON(jsonString) {
-            // Parse the JSON string into an object
-            var jsonObject;
-            try {
-                jsonObject = JSON.parse(jsonString);
-            } catch (error) {
-                console.error("Invalid JSON:", error);
-                return jsonString; // Return original string if JSON parsing fails
+                // Parse the JSON string into an object
+                var jsonObject;
+                try {
+                    jsonObject = JSON.parse(jsonString);
+                } catch (error) {
+                    console.error("Invalid JSON:", error);
+                    return jsonString; // Return original string if JSON parsing fails
+                }
+
+                // Convert the object back to a formatted JSON string
+                var formattedCode = JSON.stringify(jsonObject, null, 2);
+
+                return formattedCode;
             }
 
-            // Convert the object back to a formatted JSON string
-            var formattedCode = JSON.stringify(jsonObject, null, 2);
 
-            return formattedCode;
-            }
+            // Show/hide options input field based on selected field type
+            document.getElementById("fieldType").addEventListener("change", function () {
+                var optionsFields = document.getElementById("optionsFields");
+                optionsFields.style.display = ["multi_select", "single_select", "radio", "checkbox"].includes(this.value) ? "block" : "none";
+            });
 
             // Show/hide constraint fields based on checkbox state
-            document.getElementById("hasConstraint").addEventListener("change", function() {
+            document.getElementById("hasConstraint").addEventListener("change", function () {
                 var constraintFields = document.getElementById("constraintFields");
                 constraintFields.style.display = this.checked ? "block" : "none";
             });
+            // Event listener for Step Group Name input field
+            document.getElementById("StepGroupName").addEventListener("input", function () {
+                // Update step group name in the JSON
+                initialJson.stepgroups[0].name = this.value;
+                // Set updated JSON back to editor
+                editor.setValue(JSON.stringify(initialJson, null, 4));
+            });
+
+            // Event listener for Step Name input field
+            document.getElementById("StepName").addEventListener("input", function () {
+                // Update step name in the JSON
+                initialJson.stepgroups[0].steps[0].name = this.value;
+                // Set updated JSON back to editor
+                editor.setValue(JSON.stringify(initialJson, null, 4));
+            });
+            // Function to save and disable Step Group Name input field
+            document.getElementById("saveStepGroupName").addEventListener("click", function () {
+                var stepGroupNameInput = document.getElementById("StepGroupName").value.trim().toLowerCase().replace(/\s+/g, "_");
+                if (stepGroupNameInput) {
+                    initialJson.stepgroups[0].tag = stepGroupNameInput;
+                    document.getElementById("StepGroupName").disabled = true;
+                    this.disabled = true;
+                }
+                editor.setValue(JSON.stringify(initialJson, null, 4));
+            });
+
+            // Function to save and disable Step Name input field
+            document.getElementById("saveStepName").addEventListener("click", function () {
+                var stepNameInput = document.getElementById("StepName").value.trim().toLowerCase().replace(/\s+/g, "_");
+                if (stepNameInput) {
+                    initialJson.stepgroups[0].steps[0].tag = stepNameInput;
+                    document.getElementById("StepName").disabled = true;
+                    this.disabled = true;
+                }
+                editor.setValue(JSON.stringify(initialJson, null, 4));
+            });
+            // Copy JSON button functionality
+            document.getElementById("copyJsonButton").addEventListener("click", function () {
+                var codeEditor = document.querySelector(".CodeMirror").CodeMirror;
+                var jsonContent = codeEditor.getValue();
+
+                // Format JSON
+                var formattedJson = formatJSON(jsonContent);
+
+                // Create a temporary textarea element to hold the formatted JSON content
+                var tempTextarea = document.createElement("textarea");
+                tempTextarea.value = formattedJson;
+                document.body.appendChild(tempTextarea);
+
+                // Select and copy the content of the textarea
+                tempTextarea.select();
+                document.execCommand("copy");
+
+                // Remove the temporary textarea from the DOM
+                document.body.removeChild(tempTextarea);
+            });
+
+            // Function to format JSON
+            function formatJSON(jsonString) {
+                // Parse the JSON string into an object
+                var jsonObject;
+                try {
+                    jsonObject = JSON.parse(jsonString);
+                } catch (error) {
+                    console.error("Invalid JSON:", error);
+                    return jsonString; // Return original string if JSON parsing fails
+                }
+
+                // Convert the object back to a formatted JSON string
+                var formattedCode = JSON.stringify(jsonObject, null, 2);
+
+                return formattedCode;
+            }
+
+
+
+
         });
     </script>
-    
+
 </body>
+
 </html>
